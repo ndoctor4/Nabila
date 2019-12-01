@@ -1,0 +1,86 @@
+---
+title: "2019 BADM Hackathon"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Hackathon Models
+
+```{r}
+# Importing Libraries
+
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+```
+
+
+```{r}
+# Reading in the dataset into dataframes (not tibbles)
+
+CityData <- read.csv("CITY_DATASET_ST.csv")
+AccData <- read.csv("ACCOUNT_DATASET_ST.csv")
+PHLData <- read.csv("PHLINE_DATASET_ST.csv")
+
+CityData
+AccData
+PHLData
+```
+
+```{r}
+# Combining the all three datasets
+
+dat <- inner_join(AccData,PHLData, by="acc_num")
+LMdat <- inner_join(dat,CityData, by="bill_city")
+
+view(LMdat)
+```
+
+```{r}
+# Mutating and tidying columns
+
+LMdat$churn <- as.character(LMdat$churn)
+LMdat <- LMdat %>% 
+  mutate(churn=replace(churn,churn=="0", "NO")) %>% 
+  mutate(churn=replace(churn,churn=="1", "YES"))
+
+LMdat
+```
+
+```{r}
+# Filtering the city and the frequency of customers per city
+
+LMdat %>% distinct(bill_city)
+LMdat_city <- LMdat %>% group_by(bill_city) %>% summarise(Freq=length(bill_city))
+LMdat_city
+```
+
+```{r}
+# Plot of frequency of customers per city
+
+LMdat$bill_city <- as.factor(LMdat$bill_city)
+
+LMdat %>% mutate(bill_city = fct_lump(bill_city, n=30)) %>%
+  group_by(bill_city) %>% 
+  summarize(Freq=length(bill_city),na.rm=TRUE) %>% 
+  ggplot(aes(x=Freq,y=fct_reorder(bill_city,Freq))) + geom_point()
+```
+
+```{r}
+# Make a Histogram for churn rate per city
+
+tmp <- rename(count(LMdat, bill_city, churn), Freq = n)
+tmp
+
+#ggplot(data=LMdat) + geom_bar(mapping=aes(x=bill_city, color=churn))
+
+#LMdat.clean <- filter(ridership, Year != "Y2011", !is.na(Year)
+
+LMdat %>% mutate(bill_city = fct_lump(bill_city, n=30)) %>%
+  ggplot(aes(x=bill_city,color=churn)) + geom_bar(fill='white',na.rm=TRUE)
+```
+
+
