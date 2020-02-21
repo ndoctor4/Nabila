@@ -1,0 +1,116 @@
+---
+title: "Lab 10"
+professor: "Brad McNeney"
+edited by: "Nabila Doctor"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message=FALSE)
+```
+
+The folder `Lab10Data contains several CSV data files.
+
+```{r}
+dfiles <- dir("Lab10Data",full.names=TRUE)
+dfiles
+```
+
+1. Write R code to read in the first file.
+Print the tibble that you just read in.
+Use `names()` to change the column names of the
+tibble to `x` and `y`.
+Repeat for the second file. How many observations
+are in these first two files?
+
+```{r}
+ex_data1 <- read_csv(dfiles[1])
+ex_data1
+
+names(ex_data1)[1] <- "x"
+names(ex_data1)[2] <- "y"
+ex_data1
+
+ex_data2 <- read_csv(dfiles[2])
+ex_data2
+
+names(ex_data2)[1] <- "x"
+names(ex_data2)[2] <- "y"
+ex_data2
+```
+
+2. Use `vector()` to create an empty vector 
+called `ff` that is of mode "list" and length 9.
+Now write a `for()` loop to loop over the 9 files in
+`dfile` and for each (i) read the file in to a 
+tibble, and change the column names to 
+`x` and `y` as in part (1), and  (ii) copy the 
+tibble to an element of your list `ff`.
+
+```{r}
+ff <- vector(mode="list",  length=9)
+for (i in 1:9) {
+  ex_data <- read_csv(dfiles[i])
+  names(ex_data) <- c("x","y")
+  ff[[i]] <- ex_data
+}
+
+ff[[1]]
+```
+
+3. Write a function called `read.study_data`
+that takes a vector of data file
+names (like `dfile`) as input, reads the data files
+into a list, assigns class "study_data" to the list,
+and returns the list. Your function should use `length(dfile)`
+to determine the number of files.
+
+```{r}
+read.study_data <- function(dfiles) {
+  ff <- vector(mode="list",  length=9)
+  
+  for (i in 1:9) {
+    ex_data <- read_csv(dfiles[i])
+    names(ex_data) <- c("x","y")
+    ff[[i]] <- ex_data
+  }
+  
+  class(ff) <- "study_data"
+  return(ff)
+}
+```
+
+4. Write a function `plot.study_data()` that 
+takes an object of class "study_data" as input.
+The first 5 lines of your function should be the
+following, which creates a tibble  with
+columns `study`, `x` and `y`:
+```{r,eval=FALSE}
+  dat <- NULL
+  for(i in seq_along(ff)) {
+    d <- ff[[i]]
+    dat <- rbind(dat,tibble(study=i,x=d$x,y=d$y))
+  }
+```
+
+Have your function coerce `study` to a factor, and then call
+`ggplot()` to make a plot of `y` *versus* `x`,
+with different colours for the different studies.
+Add points and smoothers to your plot.
+
+```{r}
+plot.study_data <- function(ff) {
+  dat <- NULL
+  for(i in seq_along(ff)) {
+    d <- ff[[i]]
+    dat <- rbind(dat,tibble(study=i,x=d$x,y=d$y))
+  }
+  
+  dat$study <- as.factor(dat$study)
+  dgraph <- ggplot(data=dat,mapping=aes(x=x,y=y,color=study)) + geom_point() + geom_smooth()
+  return(dgraph)
+}
+
+plot.study_data(ff)
+```
+
