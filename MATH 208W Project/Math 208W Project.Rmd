@@ -1,0 +1,102 @@
+---
+title: "Math 208W Project"
+author: "Nabila Doctor, Yumna Parker, Fitz Laddaran"
+date: "April 24, 2020"
+output: html_document
+---
+---
+* * *
+
+This program solves our project's optimization problem.
+
+```{r}
+# including lpSolve package
+library(lpSolve)
+
+# objective function
+obj.function = c(31.12, 28.01, 50.68, 43.73,
+                 21.26, 18.86, 40.82, 33.91,
+                 227.37, 229.97, 211.03, 216.89,
+                 459.09, 497.69, 478.71, 484.61)
+
+# demand constraints: upper-bound, first 4 constraints 
+# demand constraints: lower-bound, next 16 constraints
+# supply constraints: supply, next 4 constraints
+# cost constraints: next 32
+# total supply constraint: last constraint
+# non-negativity constraint is NOT INCLUDED because it is implied based off lower-bound demand constraints
+cost.consts = matrix(c(rep(c(1, 0, 0, 0), 4),
+                       rep(c(0, 1, 0, 0), 4),
+                       rep(c(0, 0, 1, 0), 4),
+                       rep(c(0, 0, 0, 1), 4),
+                       1, rep(0, 15),
+                       0 , 1, rep(0, 14),
+                       rep(0, 2), 1, rep(0, 13),
+                       rep(0, 3), 1, rep(0, 12),
+                       rep(0, 4), 1, rep(0, 11),
+                       rep(0, 5), 1, rep(0, 10),
+                       rep(0, 6), 1, rep(0, 9),
+                       rep(0, 7), 1, rep(0, 8),
+                       rep(0, 8), 1, rep(0, 7),
+                       rep(0, 9), 1, rep(0, 6),
+                       rep(0, 10), 1, rep(0, 5),
+                       rep(0, 11), 1, rep(0, 4),
+                       rep(0, 12), 1, rep(0, 3),
+                       rep(0, 13), 1, rep(0, 2),
+                       rep(0, 14), 1, rep(0, 1),
+                       rep(0, 15), 1,
+                       rep(1, 4), rep(0, 12),
+                       rep(0, 4), rep(1, 4), rep(0, 8),
+                       rep(0, 8), rep(1, 4), rep(0, 4),
+                       rep(0, 12), rep(1, 4),
+                       rep(c(350.41, 0, 0, 0), 4),
+                       rep(c(0, 1666.09, 0, 0), 4),
+                       rep(c(0, 0, 4116.13, 0), 4),
+                       rep(c(0, 0, 0, 1816.71), 4),
+                       rep(c(311.47, 0, 0, 0), 4),
+                       rep(c(0, 1480.97, 0, 0), 4),
+                       rep(c(0, 0, 3658.78, 0), 4),
+                       rep(c(0, 0, 0, 1614.85), 4),
+                       rep(c(233.61, 0, 0, 0), 4),
+                       rep(c(0, 1110.73, 0, 0), 4),
+                       rep(c(0, 0, 2744.09, 0), 4),
+                       rep(c(0, 0, 0, 1211.14), 4),
+                       rep(c(77.87, 0, 0, 0), 4),
+                       rep(c(0, 370.24, 0, 0), 4),
+                       rep(c(0, 0, 914.70, 0), 4),
+                       rep(c(0, 0, 0, 403.71), 4),
+                       rep(c(77.87, 0, 0, 0), 4),
+                       rep(c(0, 370.24, 0, 0), 4),
+                       rep(c(0, 0, 914.70, 0), 4),
+                       rep(c(0, 0, 0, 403.71), 4),
+                       rep(c(2725.40, 0, 0, 0), 4),
+                       rep(c(0, 12958.50, 0, 0), 4),
+                       rep(c(0, 0, 32014.36, 0), 4),
+                       rep(c(0, 0, 0, 14129.95), 4),
+                       rep(c(77.87, 0, 0, 0), 4),
+                       rep(c(0, 370.24, 0, 0), 4),
+                       rep(c(0, 0, 914.70, 0), 4),
+                       rep(c(0, 0, 0, 403.71), 4),
+                       rep(c(38.93, 0, 0, 0), 4),
+                       rep(c(0, 185.12, 0, 0), 4),
+                       rep(c(0, 0, 457.35, 0), 4),
+                       rep(c(0, 0, 0, 201.86), 4),
+                       rep(1, 16)),
+                     nrow = 57, byrow = TRUE)
+
+# directions
+cost.dir = c(rep("<=", 4), rep(">=", 16), rep("=", 4), rep("<=", 32), "=")
+
+# right-hand side of constraints
+cost.rhs = c(216, 446, 378, 50, 12, 20, 9, 2, 11, 17, 8, 1, 11, 15, 7, 5, 10, 12, 6, 4, 514, 443, 43, 37, 1318885.08, 2090272.17, 2582113.21, 3418976.10, 1232505.87, 1953371.65, 2413000, 3195053.30, 932371.15, 1477694.67, 1825396.23, 2417007.15, 277352.13, 439569.34, 543000, 718986.30, 266886.01, 422981.81, 522509.43, 691854.74, 10627774.34, 16843727.52, 20807056.60, 27550623.64, 312374.11, 495074.91, 611566.04, 809774.59, 172416, 273258.35, 337556.04, 446957.95, 1037)
+
+# solving optimization problem
+solution = lp(direction = "min", objective.in = obj.function, const.dir = cost.dir,
+            const.mat = cost.consts, const.rhs = cost.rhs)
+
+# objective function
+solution
+
+# x(ij)'s
+solution$solution
+```
