@@ -1,0 +1,6 @@
+This simple Shiny App displays time series for the mean temperature (in celsius) for each month from 2017 to 2019. 
+From the drop down menu, the user can select which month they would like to display. 
+
+Project by: Nabila Doctor
+Last Updated: July 29th, 2020 
+Datasets: https://climate.weather.gc.ca/climate_data/daily_data_e.html?StationID=51442
